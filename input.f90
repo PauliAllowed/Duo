@@ -1,5 +1,5 @@
 MODULE input
-
+! check
 !  Fortran90 input parsing module
 !
 !  Copyright (C) 2005 Anthony J. Stone
