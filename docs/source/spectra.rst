@@ -26,6 +26,15 @@ avoid the intensity calculation without removing or commenting out
 the relative input section from the input file.
 The meaning of the keywords is explained in the following.
 
+Transition moments
+^^^^^^^^^^^^^^^^^^
+
+Use ``TM`` as the action in an ``INTENSITY`` block to print signed electric-dipole
+transition matrix elements in Debye without squaring them. The ``TM`` calculation
+uses the same angular, symmetry, and normalization factors as the absorption and
+emission calculations; only the final squaring used for line strengths and
+Einstein A coefficients is omitted.
+
 
 .. note::
    Duo input keywords are case-insensitive. In this manual we use lowercase for
@@ -540,6 +549,5 @@ the INTENSITY block, only a .states file is generated.
 
 
 .. bibliography:: exomol.bib
-
 
 

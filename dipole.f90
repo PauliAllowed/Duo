@@ -1325,7 +1325,7 @@ contains
                   ! Calculate Half Linestrength based on action
                   !
                   select case (trim(intensity%action))
-                  case('ABSORPTION','EMISSION')
+                  case('ABSORPTION','EMISSION','TM')
                     if (isymF /= igamma_pair(isymI)) cycle Ilevels_loop
                     
                     if (( intensity%J(1)+intensity%J(2)>0 )&
@@ -1346,14 +1346,6 @@ contains
                                                             half_linestr)
                       end select 
                     endif 
-                  case('TM')
-                    if (.not.radiative_operator%supports_tm) then
-                      write(out,'(/a,1x,a)') trim(radiative_operator%label),&
-                        'transition moments are not implemented'
-                      stop 'Unsupported transition-moment calculation'
-                    endif
-                    call do_1st_half_tm(indI,indF,dimenI,dimenF,&
-                                        vecI(1:dimenI),half_linestr)
                   end select
                   !
                   ! --------------------------------------------
@@ -2582,49 +2574,6 @@ contains
             ! call TimerStop('do_1st_half_linestr')
             !
       end subroutine do_1st_half_linestrength_omega
-
-      subroutine do_1st_half_tm(indI,indF,dimenI,dimenF,vector,half_tm)
-
-        integer(ik),intent(in)  :: indI,indF,dimenI,dimenF
-        real(rk),intent(in)     :: vector(:)
-        real(rk),intent(out)    :: half_tm(:)
-        integer(ik)             :: icontrF,icontrI, ivibF,ivibI,idip,istateI,istateF
-        real(rk)                :: f
-          !
-          half_tm    = 0
-          !
-          !loop over final state basis components
-          !
-          loop_F : do icontrF = 1, dimenF
-               !
-               ivibF = basis(indF)%icontr(icontrF)%ivib
-               istateF = basis(indF)%icontr(icontrF)%istate
-               !isigmaF = basis(indF)%icontr(icontrF)%sigma
-               !
-               loop_I : do icontrI = 1, dimenI
-                  !
-                  ivibI = basis(indI)%icontr(icontrI)%ivib
-                  istateI = basis(indI)%icontr(icontrI)%istate
-                  !isigmaI = basis(indI)%icontr(icontrI)%sigma
-                  !
-                  !compute TM
-                  !
-                  do idip = 1,Ndipoles
-                    !
-                    if (dipoletm(idip)%istate/=istateI.or.dipoletm(idip)%jstate/=istateF) cycle
-                    f = dipoletm(idip)%matelem(ivibI,ivibF)
-                    !
-                    half_tm(icontrF) = half_tm(icontrF) + f*vector(icontrI)
-                    !
-                  enddo
-                  !
-               end do loop_I
-               !
-          end do  loop_F
-          !
-      end subroutine do_1st_half_tm
-
-
 
       subroutine  do_LF_matrix_elements(iLF,iunit,jI,jF,icount)
         implicit none 
