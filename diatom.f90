@@ -3282,14 +3282,14 @@ contains
           !
           select case(w)
             !
-          case('NONE','ABSORPTION','EMISSION','PARTFUNC')
+          case('NONE','ABSORPTION','EMISSION','TM','PARTFUNC')
             !
             intensity%action = trim(w)
             !
             !if (trim(intensity%action)=='DIPOLE-TM') intensity%action = 'TM'
             !
             ! L Lodi: character length must be specified in the array constructor for Fortran 2003 conformance
-            if (any(trim(intensity%action)==(/ character(len=wl) :: 'ABSORPTION','EMISSION','PARTFUNC'/))) then
+            if (any(trim(intensity%action)==(/ character(len=wl) :: 'ABSORPTION','EMISSION','TM','PARTFUNC'/))) then
               !
               action%intensity = .true.
               intensity%do = .true.

@@ -1151,6 +1151,13 @@ contains
                       &7x,'State v lambda sigma  omega -> State v lambda sigma  omega ')")
           dir = '->'
           !
+        case('TM')
+          !
+          write(out,"(/t5,'J',t7,'Gamma <-',t18,'J',t21,'Gamma',t27,'Typ',t37,'Ei',t44,'<-',t52,'Ef',t64,'nu_if',&
+                      &8x,'TM(f<-i) [Debye]', &
+                      &7x,'State v lambda sigma  omega <- State v lambda sigma  omega ')")
+          dir = '<-'
+          !
       end select
       !
     endif
