@@ -6,65 +6,23 @@ tarball:
 checkin:
 	ci -l Makefile *.f90
 
-
 #FPATH = 
 
-EXE = j-duo-v1206.x
+EXE = j-duo_custom.x
 
-FOR  = ifort   # Fortran compiler 
-##FOR = gfortran  
+FOR = gfortran   # Fortran compiler switched to gfortran
 
-# Lorenzo Lodi  ---- meaning of some flags used by the Intel fortran compiler
-#  see (e.g.) file:///opt/intel/composer_xe_2011_sp1.8.273/Documentation/en_US/compiler_f/main_for/index.htm
-# -O0 removes compiler optimization of the code. Code is slower in execution but compilation is much faster.
-# -fltconsistency disables some optimisations which may lead to very small numerical roundoff errors
-# -stand f95 gives warnings if non-Fortran95-compliant features are used
-# -stand f03 gives warnings if non-Fortran03-compliant features are used
-# -check all enables the following run-time checks:
-#                    arg_temp_created  => Determines whether checking occurs for actual arguments before routine calls.
-#                    bounds            => checks if accessing an out-of-bounds array element (e.g., x(0) when x is defined as x(1:NMAX)
-#                    format            => mismatch in the output format, e.g. write(*,'(F10.5)') i , and i is an integer
-#                    output_conversion => output error, e.g. the number won't fit in the given spaces
-#                    pointer           => checks for disassociated/uninitialized pointers
-#                    uninit            => checks for uninitialized variables
-# -warn all enables the following compile-time diagnostic checks:
-#                    alignments        => data that is not naturally aligned
-#                    declarations      => undeclared names
-#                    errors            => warnings are changed to errors
-#                    general           => various things
-#                    ignore_loc        => %LOC is stripped from an actual argument. (?)
-#                    interfaces        => compiler checks the interfaces
-#                    stderrors         => Fortran standard violations are changed to errors.
-#                    truncated_source  => source exceeds the maximum column width
-#                    uncalled          => statement function is never called
-#                    unused            => declared variables that are never used.
-#                    usage             => questionable programming practices.
-# -traceback ***GOLDEN OPTION***  when a run-time error occurs it'll tell you the line in the source code responsible
-# -fp-stack-check  stops the program immediately when a NaN (Not-a-numeber) error occurs
-# Other options:
-# -O3 most agressive general optimization setting
-# -ip enables additional interprocedural optimizations
-# -g generate full debugging information in the object file
-#  -C compile only (=make .o files), but do not link .o files to produce executable
-#  -prof-value-profiling=all   All value profile types are enabled and value profiling is performed.
+# Optimization and OpenMP flags for gfortran
+FFLAGS = -O3 -fopenmp -std=gnu -ffree-line-length-none -w
 
-#NOTE: -fpe0 will stop on floating-point exceptions. Do not use this flag because LAPACK makes use of divide by zero etc.
-#
-##FFLAGS = -O0 -fpe0  -fltconsistency -stand f03 -check all -warn all -traceback -fp-stack-check  # debugging options
-
-FFLAGS = -O3 -ipo -qopenmp -mkl=parallel # -xHost -fast
-
-##FFLAGS = -C -check bounds -g  -gen-interfaces -warn interfaces  -check arg_temp_created -prof-value-profiling=all -warn all
-##FFLAGS = -O3 -ip -openmp # no optimization -- fast compilation
+# Alternative debugging flags for gfortran (uncomment if needed):
 ##FFLAGS = -W -Wall -fbounds-check -pedantic-errors -std=f2003 -Wunderflow -O0 -fbacktrace -g -Wextra
 
+# Standard Linux BLAS and LAPACK libraries both within openblas (requires liblapack-dev and libblas-dev)
+LAPACK = -lopenblas
+# run module load openblas to ensure both are loaded
 
-#ARPACK =  ~/libraries/ARPACK/libarpack_omp_64.a
-
-LAPACK = -mkl=parallel -static
-#LAPACK = -mkl=parallel -static
-
-LIB     =   $(LAPACK)
+LIB = $(LAPACK) -fopenmp
 
 ###############################################################################
 
@@ -77,7 +35,7 @@ dipole.o: timer.o accuracy.o diatom.o symmetry.o magnetic_dipole.o quadrupole.o 
 quadrupole.o: timer.o accuracy.o diatom.o
 intensity.o: accuracy.o diatom.o dipole.o
 duo.o: header_info.o diatom.o accuracy.o refinement.o timer.o intensity.o F1_hyperfine.o F1_intensity.o
-functions.o: accuracy.o timer.o
+functions.o: accuracy.o timer.o lapack.o
 grids.o: accuracy.o Lobatto.o
 header_info.o: accuracy.o
 F1_hyperfine.o: accuracy.o diatom.o lapack.o symmetry.o
@@ -98,7 +56,7 @@ RWF.o: accuracy.o diatom.o timer.o symmetry.o lapack.o
 	$(FOR) -c -o $@ $< $(FFLAGS)
 
 duo:	$(OBJ) duo.o
-	$(FOR) -o $(EXE) $(OBJ) $(FFLAGS) duo.o $(LIB)
+	$(FOR) -o $(EXE) $(OBJ) duo.o $(LIB) $(FFLAGS)
 
 clean:
 	rm -f $(OBJ) *.mod *__genmod.f90 duo.o duo_test_0* eigen_vectors.chk eigen_vib.chk Bob-Rot_centrifugal_functions.dat  _Lp__functions.dat       Spin-Orbit.dat               Spin-spin_functions.dat Dipole_moment_functions.dat        Potential_functions.dat  Spin-rotation_functions.dat Spin-spin-o__non-diagonal__functions.dat
