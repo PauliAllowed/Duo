@@ -1479,19 +1479,17 @@ contains
                        case('TM')
                          raw_tdm = sum(half_linestr(1:dimenF)*vecF(1:dimenF))
                          absorption_int = 0
-                         if (abs(raw_tdm)>=intensity%threshold%intensity) then
-                           !$omp critical (write_tm)
-                           write(out, "( (f5.1, 1x, a4, 3x),a2, (f5.1, 1x, a4, 3x),a1,&
-                                        &(2x, f11.4,1x),a2,(1x, f11.4,1x),f11.4,2x,&
-                                        & (1x, es16.8),&
-                                        & ' ( ',i2,1x,i3,1x,i2,2f8.1,' )',a2,'( ',i2,1x,i3,1x,i2,2f8.1,' )')")  &
-                                        jF,sym%label(isymF),dir,jI,sym%label(isymI),branch, &
-                                        energyF-intensity%ZPE,dir,energyI-intensity%ZPE,nu_if,  &
-                                        raw_tdm,&
-                                        istateF,ivF,ilambdaF,sigmaF,omegaF,dir,&
-                                        istateI,ivI,ilambdaI,sigmaI,omegaI
-                           !$omp end critical (write_tm)
-                         endif
+                         !$omp critical (write_tm)
+                         write(out, "( (f5.1, 1x, a4, 3x),a2, (f5.1, 1x, a4, 3x),a1,&
+                                      &(2x, f11.4,1x),a2,(1x, f11.4,1x),f11.4,2x,&
+                                      & (1x, es16.8),&
+                                      & ' ( ',i2,1x,i3,1x,i2,2f8.1,' )',a2,'( ',i2,1x,i3,1x,i2,2f8.1,' )')")  &
+                                      jF,sym%label(isymF),dir,jI,sym%label(isymI),branch, &
+                                      energyF-intensity%ZPE,dir,energyI-intensity%ZPE,nu_if,  &
+                                      raw_tdm,&
+                                      istateF,ivF,ilambdaF,sigmaF,omegaF,dir,&
+                                      istateI,ivI,ilambdaI,sigmaI,omegaI
+                         !$omp end critical (write_tm)
                      end select
                      !
                   end do Inner_F_Loop
