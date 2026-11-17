@@ -1140,14 +1140,14 @@ contains
         case('ABSORPTION')
           !
           write(out,"(/t5,'J',t7,'Gamma <-',t18,'J',t21,'Gamma',t27,'Typ',t37,'Ei',t44,'<-',t52,'Ef',t64,'nu_if',&
-                      &8x,'S(f<-i)',10x,'TM(f<-i)',10x,'A(if)',12x,'I(f<-i)', &
+                      &8x,'S(f<-i)',10x,'A(if)',12x,'I(f<-i)', &
                       &7x,'State v lambda sigma  omega <- State v lambda sigma  omega ')")
           dir = '<-'
           !
         case('EMISSION')
           !
           write(out,"(/t5,'J',t7,'Gamma ->',t18,'J',t21,'Gamma',t27,'Typ',t37,'Ei',t44,'->',t52,'Ef',t64,'nu_if',&
-                      &8x,'S(i->f)',10x,'TM(i->f)',10x,'A(if)',12x,'I(i->f)', &
+                      &8x,'S(i->f)',10x,'A(if)',12x,'I(i->f)', &
                       &7x,'State v lambda sigma  omega -> State v lambda sigma  omega ')")
           dir = '->'
           !
@@ -1452,11 +1452,11 @@ contains
                                 !$omp critical (write_out)
                                 write(out, "( (f5.1, 1x, a4, 3x),a2, (f5.1, 1x, a4, 3x),a1,&
                                            &(2x, f11.4,1x),a2,(1x, f11.4,1x),f11.4,2x,&
-                                           & 4(1x, es16.8),&
+                                           & 3(1x, es16.8),&
                                            & ' ( ',i2,1x,i3,1x,i2,2f8.1,1x,i7,' )',a2,'( ',i2,1x,i3,1x,i2,2f8.1,1x,i7,' )')")  &
                                            jF,sym%label(isymF),dir,jI,sym%label(isymI),branch, &
                                            energyF-intensity%ZPE,dir,energyI-intensity%ZPE,nu_if,  &
-                                           linestr2,raw_tdm,A_einst,absorption_int,&
+                                           raw_tdm,A_einst,absorption_int,&
                                            istateF,ivF,ilambdaF,sigmaF,omegaF,ilevelF,dir,&
                                            istateI,ivI,ilambdaI,sigmaI,omegaI,ilevelI
                                            !
