@@ -424,7 +424,7 @@ contains
     integer(ik)    :: igammaI,igammaF
     integer(ik)    :: dimenI,dimenF,nmax,parity_gu,isymI,isymF
     real(rk)       :: energyI, energyF, nu_if,linestr,ener_,linestr2
-    real(rk)       :: tm,jI,jF
+    real(rk)       :: jI,jF
     logical        :: passed,passed_
 
     real(rk),    allocatable :: vecI(:), vecF(:)
@@ -445,7 +445,7 @@ contains
     !
     type(quantaT),pointer  :: quantaI,quantaF
     !
-    real(rk)     :: boltz_fc, beta, intens_cm_mol, emcoef, A_coef_s_1, A_einst, absorption_int,lande
+    real(rk)     :: boltz_fc, beta, intens_cm_mol, emcoef, A_coef_s_1, A_einst, absorption_int, lande, raw_tdm
     real(rk),allocatable :: acoef_RAM(:),nu_ram(:),spline_grid(:),acoef_norm(:),acoef_spin_grid(:,:,:),nu_spin_grid(:,:,:)
     !
     integer(ik),allocatable :: indexi_RAM(:),indexf_RAM(:),ncount_spin_grid(:,:)
@@ -1210,7 +1210,7 @@ contains
               !$omp& private(ilevelI, energyI, quantaI, istateI, ivibI, ivI, sigmaI, spinI, ilambdaI, omegaI, parity_gu, isymI) &
               !$omp& private(ilevelF, energyF, quantaF, istateF, ivibF, ivF, sigmaF, spinF, ilambdaF, omegaF, isymF) &
               !$omp& private(passed, alloc_p, iEntry_fitting) &
-              !$omp& private(nu_if, branch, linestr, linestr2, A_einst, boltz_fc, absorption_int, tm) &
+              !$omp& private(nu_if, branch, linestr, linestr2, A_einst, boltz_fc, absorption_int, raw_tdm) &
               !$omp& private(vecI, vecF, half_linestr) & 
               !$omp& private(acoef_RAM, nu_RAM, indexf_RAM, indexi_RAM) &
               !$omp& private(acoef_norm, acoef_spin_grid, nu_spin_grid, ncount_spin_grid, spline_grid) &
@@ -1410,7 +1410,8 @@ contains
                        case('ABSORPTION','EMISSION')
                          !
                          linestr = sum(half_linestr(1:dimenF)*vecF(1:dimenF))
-                         linestr2 = linestr**2
+                         raw_tdm = linestr
+                         linestr2 = raw_tdm**2
                          select case (radiative_operator%frequency_power)
                          case (3)
                            ! Keep the literal exponent used by the established
@@ -1455,7 +1456,7 @@ contains
                                            & ' ( ',i2,1x,i3,1x,i2,2f8.1,1x,i7,' )',a2,'( ',i2,1x,i3,1x,i2,2f8.1,1x,i7,' )')")  &
                                            jF,sym%label(isymF),dir,jI,sym%label(isymI),branch, &
                                            energyF-intensity%ZPE,dir,energyI-intensity%ZPE,nu_if,  &
-                                           linestr2,linestr,A_einst,absorption_int,&
+                                           linestr2,raw_tdm,A_einst,absorption_int,&
                                            istateF,ivF,ilambdaF,sigmaF,omegaF,ilevelF,dir,&
                                            istateI,ivI,ilambdaI,sigmaI,omegaI,ilevelI
                                            !
@@ -1476,10 +1477,9 @@ contains
                          endif
                          !
                        case('TM')
-                         tm = dot_product( half_linestr(1:dimenF),vecF(1:dimenF) )
-                         linestr = tm
+                         raw_tdm = sum(half_linestr(1:dimenF)*vecF(1:dimenF))
                          absorption_int = 0
-                         if (abs(linestr)>=intensity%threshold%intensity) then 
+                         if (abs(raw_tdm)>=intensity%threshold%intensity) then
                            !$omp critical (write_tm)
                            write(out, "( (f5.1, 1x, a4, 3x),a2, (f5.1, 1x, a4, 3x),a1,&
                                         &(2x, f11.4,1x),a2,(1x, f11.4,1x),f11.4,2x,&
@@ -1487,7 +1487,7 @@ contains
                                         & ' ( ',i2,1x,i3,1x,i2,2f8.1,' )',a2,'( ',i2,1x,i3,1x,i2,2f8.1,' )')")  &
                                         jF,sym%label(isymF),dir,jI,sym%label(isymI),branch, &
                                         energyF-intensity%ZPE,dir,energyI-intensity%ZPE,nu_if,  &
-                                        tm,&
+                                        raw_tdm,&
                                         istateF,ivF,ilambdaF,sigmaF,omegaF,dir,&
                                         istateI,ivI,ilambdaI,sigmaI,omegaI
                            !$omp end critical (write_tm)
